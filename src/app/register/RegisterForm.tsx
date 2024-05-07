@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Heading from "../components/Heading"
 import Input from "../components/inputs/Input"
 import { FieldValues, SubmitHandler, useForm} from "react-hook-form"
@@ -11,11 +11,14 @@ import axios from "axios"
 import toast from "react-hot-toast"
 import {signIn} from 'next-auth/react'
 import { useRouter } from "next/navigation"
+import { SafeUser } from "../../../types"
+
+interface ResgisterFormPrps{
+    currentUser : SafeUser | null
+}
 
 
-
-
-const RegisterForm = () => {
+const RegisterForm:React.FC<ResgisterFormPrps> = (currentUser) => {
     const [isLoading, setISLoading] = useState(false)
     const {register, handleSubmit , formState: {errors}} = useForm<FieldValues>({
         defaultValues:{
@@ -26,6 +29,12 @@ const RegisterForm = () => {
     });
 
     const router = useRouter()
+    useEffect(()=>{
+        if(currentUser){
+            router.push('/cart')
+            router.refresh();
+        }
+    }, [])
 
     const onSubmit : SubmitHandler<FieldValues> = (data) =>{
         setISLoading(true)
@@ -50,16 +59,19 @@ const RegisterForm = () => {
     }) .catch(()=> toast.error("Something went wrong")) .finally(()=>{
         setISLoading(false)
     })
+    if(currentUser){
+        return <p className="text-center">Logged In. Redirecting . . . </p>
+    }
         
 }
   return (
     <>
     <Heading title="Signup for Musix~Shop" />
-    <Button
+    {/* <Button
     outline
     label="Signup with Google"
     icon={AiOutlineGoogle}
-    onClick ={() =>{}}/>
+    onClick ={() =>{}}/> */}
     <hr className="bg-slate-300 w-full h-px"/>
     <Input
     id="name"
